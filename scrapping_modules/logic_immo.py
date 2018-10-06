@@ -2,7 +2,6 @@ from pprint import pprint
 
 import requests
 from datetime import datetime
-from bs4 import BeautifulSoup
 from models import Annonce
 
 """Module qui récupère les annonces de Logic-Immo"""
@@ -18,12 +17,21 @@ def search(parameters):
     # Préparation des paramètres de la requête
     payload = {
         'client': "v8.a.3",
-        'price_range': "%s,%s" % (parameters['price'][0], parameters['price'][1]),  # Loyer
-        'area_range': "%s,%s" % (parameters['surface'][0], parameters['surface'][1]),  # Surface
-        'rooms_range': "%s,%s" % (parameters['rooms'][0], parameters['rooms'][1]),  # Pièces
-        'bedrooms_range': "%s,%s" % (parameters['bedrooms'][0], parameters['bedrooms'][1]),  # Chambres
-        'localities': ','.join(key for key in search_city_code(parameters['cities']))
     }
+    if parameters.get('price'):
+        payload['price_range'] = "%s,%s" % (parameters['price'][0], parameters['price'][1])  # Loyer
+
+    if parameters.get('surface'):
+        payload['area_range'] = "%s,%s" % (parameters['surface'][0], parameters['surface'][1])  # Surface
+
+    if parameters.get('rooms'):
+        payload['rooms_range'] = "%s,%s" % (parameters['rooms'][0], parameters['rooms'][1])  # Pièces
+
+    if parameters.get('bedrooms'):
+        payload['bedrooms_range'] = "%s,%s" % (parameters['bedrooms'][0], parameters['bedrooms'][1])  # Chambres
+
+    if parameters.get('cities'):
+        payload['localities'] = ','.join(key for key in search_city_code(parameters['cities']))
 
     # Insertion des paramètres propres à LeBonCoin
     payload.update(parameters['logic-immo'])
@@ -37,13 +45,13 @@ def search(parameters):
             id='logic-immo-' + ad['identifiers']['main'],
             defaults={
                 'site': "Logic Immo",
-                'created': datetime.fromtimestamp(ad['info']['firstOnlineDate']),
-                'title': "%s %s pièces" % (ad['info']['propertyType']['name'], ad['properties']['rooms']),
-                'description': ad['info']['text'],
+                'created': datetime.fromtimestamp(ad['info'].get('firstOnlineDate')),
+                'title': "%s %s pièces" % (ad['info']['propertyType'].get('name'), ad['properties'].get('rooms')),
+                'description': ad['info'].get('text'),
                 'telephone': ad['contact'].get('phone'),
                 'price': ad['pricing']['amount'],
-                'surface': ad['properties']['area'],
-                'rooms': ad['properties']['rooms'],
+                'surface': ad['properties'].get('area'),
+                'rooms': ad['properties'].get('rooms'),
                 'bedrooms': ad['properties'].get('bedrooms'),
                 'city': ad['location']['city']['name'],
                 'link': ad['info']['link'],

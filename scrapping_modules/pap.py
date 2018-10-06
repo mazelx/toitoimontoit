@@ -16,15 +16,27 @@ header = {
 def search(parameters):
     # Préparation des paramètres de la requête
     payload = {
-        'recherche[prix][min]': parameters['price'][0],  # Loyer min
-        'recherche[prix][max]': parameters['price'][1],  # Loyer max
-        'recherche[surface][min]': parameters['surface'][0],  # Surface min
-        'recherche[surface][max]': parameters['surface'][1],  # Surface max
-        'recherche[nb_pieces][min]': parameters['rooms'][0],  # Pièces min
-        'recherche[nb_chambres][min]': parameters['bedrooms'][0],  # Chambres min
         'size': 200,
         'page': 1
     }
+
+    if parameters.get('price'):
+        payload['recherche[prix][min]'] = parameters['price'][0]  # Loyer min
+        payload['recherche[prix][max]'] = parameters['price'][1]  # Loyer max
+
+    if parameters.get('surface'):
+        payload['recherche[surface][min]'] = parameters['surface'][0]  # Surface min
+        payload['recherche[surface][max]'] = parameters['surface'][1]  # Surface max
+
+    if parameters.get('rooms'):
+        payload['recherche[nb_pieces][min]'] = parameters['rooms'][0]  # Pièces min
+
+    if parameters.get('bedrooms'):
+        payload['recherche[nb_chambres][min]'] = parameters['bedrooms'][0]  # Chambres min
+
+    if parameters.get('cities'):
+        payload['zipcode'] = ','.join(str(cp[1]) for cp in parameters['cities'])
+        payload['city'] = ','.join(cp[0] for cp in parameters['cities'])
 
     # Insertion des paramètres propres à PAP
     payload.update(parameters['pap'])

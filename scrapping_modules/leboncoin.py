@@ -8,16 +8,24 @@ from models import Annonce
 
 def search(parameters):
     # Préparation des paramètres de la requête
-    payload = {
-        'mrs': parameters['price'][0],  # Loyer min
-        'mre': parameters['price'][1],  # Loyer max
-        'sqs': surface_value(parameters['surface'][0]),  # Surface min
-        'sqe': surface_value(parameters['surface'][1]),  # Surface max
-        'ros': parameters['rooms'][0],  # Pièces min
-        'roe': parameters['rooms'][1],  # Pièces max
-        'zipcode': ','.join(str(cp[1]) for cp in parameters['cities']),
-        'city': ','.join(cp[0] for cp in parameters['cities'])
-    }
+    payload = {}
+
+    if parameters.get('price'):
+        payload['mrs'] = parameters['price'][0]  # Loyer min
+        payload['mre'] = parameters['price'][1]  # Loyer max
+
+    if parameters.get('surface'):
+        payload['sqs'] = surface_value(parameters['surface'][0])  # Surface min
+        payload['sqe'] = surface_value(parameters['surface'][1])  # Surface max
+
+    if parameters.get('rooms'):
+        payload['ros'] = parameters['rooms'][0]  # Pièces min
+        payload['roe'] = parameters['rooms'][1]  # Pièces max
+
+    if parameters.get('cities'):
+        payload['zipcode'] = ','.join(str(cp[1]) for cp in parameters['cities'])
+        payload['city'] = ','.join(cp[0] for cp in parameters['cities'])
+
     # Insertion des paramètres propres à LeBonCoin
     payload.update(parameters['leboncoin'])
 

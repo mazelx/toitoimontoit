@@ -7,18 +7,26 @@ from datetime import datetime
 
 def search(parameters):
     # Préparation des paramètres de la requête
-    payload = {
-        'px_loyermin': parameters['price'][0],
-        'px_loyermax': parameters['price'][1],
-        'surfacemin': parameters['surface'][0],
-        'surfacemax': parameters['surface'][1],
-        # Si parameters['rooms'] = (2, 4) => "2,3,4"
-        'nbpieces': list(range(parameters['rooms'][0], parameters['rooms'][1] + 1)),
-        # Si parameters['bedrooms'] = (2, 4) => "2,3,4"
-        'nb_chambres': list(range(parameters['bedrooms'][0], parameters['bedrooms'][1] + 1)),
-        'ci': [int(cp[2]) for cp in parameters['cities']]
-    }
-    # Insertion des paramètres propres à LeBonCoin
+    payload = {}
+
+    if parameters.get('price'):
+        payload['px_loyermin'] = parameters['price'][0]  # Loyer min
+        payload['px_loyermax'] = parameters['price'][1]  # Loyer max
+
+    if parameters.get('surface'):
+        payload['surfacemin'] = parameters['surface'][0]  # Surface min
+        payload['surfacemax'] = parameters['surface'][1]  # Surface max
+
+    if parameters.get('rooms'):
+        payload['nbpieces'] = list(range(parameters['rooms'][0], parameters['rooms'][1] + 1))
+
+    if parameters.get('bedrooms'):
+        payload['nb_chambres'] = list(range(parameters['bedrooms'][0], parameters['bedrooms'][1] + 1))
+
+    if parameters.get('cities'):
+        payload['ci'] = [int(cp[2]) for cp in parameters['cities']]
+
+    # Insertion des paramètres propres à SeLoger
     payload.update(parameters['seloger'])
 
     headers = {'user-agent': 'Dalvik/2.1.0 (Linux; U; Android 6.0.1; D5803 Build/MOB30M.Z1)'}
