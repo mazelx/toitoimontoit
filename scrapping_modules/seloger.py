@@ -36,22 +36,27 @@ def search(parameters):
         for photo in annonceNode.find("photos"):
             photos.append(photo.findtext("stdUrl"))
 
-        annonce, created = Annonce.create_or_get(
+        annonce, created = Annonce.get_or_create(
             id='seloger-' + annonceNode.find('idAnnonce').text,
-            site='SeLoger',
-            # SeLoger peut ne pas fournir de titre pour une annonce T_T
-            title="Appartement " + annonceNode.findtext('nbPiece') + " pièces" if annonceNode.findtext('titre') is None else annonceNode.findtext('titre'),
-            description=ET.fromstring(_request.text).findtext("descriptif"),
-            telephone=ET.fromstring(_request.text).findtext("contact/telephone"),
-            created=datetime.strptime(annonceNode.findtext('dtCreation'), '%Y-%m-%dT%H:%M:%S'),
-            price=annonceNode.find('prix').text,
-            charges=annonceNode.find('charges').text,
-            surface=annonceNode.find('surface').text,
-            rooms=annonceNode.find('nbPiece').text,
-            bedrooms=annonceNode.find('nbChambre').text,
-            city=annonceNode.findtext('ville'),
-            link=annonceNode.findtext('permaLien'),
-            picture=photos
+            defaults={
+                'site': 'SeLoger',
+                # SeLoger peut ne pas fournir de titre pour une annonce T_T
+                'title': "Appartement " + annonceNode.findtext('nbPiece') + " pièces" if annonceNode.findtext(
+                    'titre') is None else annonceNode.findtext('titre'),
+                'description': ET.fromstring(_request.text).findtext("descriptif"),
+                'telephone': ET.fromstring(_request.text).findtext("contact/telephone"),
+                'created': datetime.strptime(annonceNode.findtext('dtCreation'), '%Y-%m-%dT%H:%M:%S'),
+                'price': annonceNode.find('prix').text,
+                'charges': annonceNode.find('charges').text,
+                'surface': annonceNode.find('surface').text,
+                'rooms': annonceNode.find('nbPiece').text,
+                'bedrooms': annonceNode.find('nbChambre').text,
+                'city': annonceNode.findtext('ville'),
+                'link': annonceNode.findtext('permaLien'),
+                'picture': photos
+            }
+
+
         )
 
         if created:

@@ -33,23 +33,23 @@ def search(parameters):
 
     for ad in data['items']:
 
-        annonce, created = Annonce.create_or_get(
+        annonce, created = Annonce.get_or_create(
             id='logic-immo-' + ad['identifiers']['main'],
-            site="Logic Immo",
-            created=datetime.fromtimestamp(ad['info']['firstOnlineDate']),
-            title="%s %s pièces" % (ad['info']['propertyType']['name'], ad['properties']['rooms']),
-            description=ad['info']['text'],
-            telephone=ad['contact'].get('phone'),
-            price=ad['pricing']['amount'],
-            surface=ad['properties']['area'],
-            rooms=ad['properties']['rooms'],
-            bedrooms=ad['properties'].get('bedrooms'),
-            city=ad['location']['city']['name'],
-            link=ad['info']['link'],
-            picture=[picture.replace("[WIDTH]", "1440").replace("[HEIGHT]", "956").replace("[SCALE]", "3.5")
-                     for picture in ad.get('pictures')]
+            defaults={
+                'site': "Logic Immo",
+                'created': datetime.fromtimestamp(ad['info']['firstOnlineDate']),
+                'title': "%s %s pièces" % (ad['info']['propertyType']['name'], ad['properties']['rooms']),
+                'description': ad['info']['text'],
+                'telephone': ad['contact'].get('phone'),
+                'price': ad['pricing']['amount'],
+                'surface': ad['properties']['area'],
+                'rooms': ad['properties']['rooms'],
+                'bedrooms': ad['properties'].get('bedrooms'),
+                'city': ad['location']['city']['name'],
+                'link': ad['info']['link'],
+                'picture': [get_picture(picture) for picture in ad.get('pictures')]
+            }
         )
-
         if created:
             annonce.save()
 
@@ -69,3 +69,9 @@ def search_city_code(cities):
         keys.append(data['items'][0]['key'])
 
     return keys
+
+
+def get_picture(url):
+    r = requests.get(url.replace("[WIDTH]", "1440").replace("[HEIGHT]", "956").replace("[SCALE]", "3.5"))
+    return r.url
+

@@ -16,7 +16,7 @@ class Annonce(Model):
     price = FloatField()
     charges = FloatField(null=True)
     surface = FloatField()
-    rooms = IntegerField()
+    rooms = IntegerField(null=True)
     bedrooms = IntegerField(null=True)
     city = CharField()
     link = CharField()
