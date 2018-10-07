@@ -1,6 +1,7 @@
 import random
 import logging
 import requests
+from models import Annonce
 
 # TODO: divide search and save and display log between them
 from requests import ConnectTimeout
@@ -19,7 +20,7 @@ class Search:
         while True:
             proxy_dict = None
             if self.proxies:
-                proxy_dict = {'http': self.proxies[proxy_index],'https': self.proxies[proxy_index]}
+                proxy_dict = {'http': self.proxies[proxy_index], 'https': self.proxies[proxy_index]}
             try:
                 response = requests.request(method,
                                             url,
@@ -27,7 +28,7 @@ class Search:
                                             data=data,
                                             headers=self.header,
                                             proxies=proxy_dict,
-                                            timeout=10)
+                                            timeout=5)
                 # got 200 code
                 if response.ok:
                     return response
@@ -44,6 +45,31 @@ class Search:
                 else:
                     break
         raise ConnectionError("Cannot connect to API")
+
+    def save(self, uid, site, created, title, city, link, price, surface,
+             description=None, telephone=None, rooms=None, bedrooms=None, picture=None):
+        annonce, created = Annonce.get_or_create(
+            id=uid,
+            defaults={
+                'site': site,
+                'created': created,
+                'title': title,
+                'description': description,
+                'telephone': telephone,
+                'price': price,
+                'surface': surface,
+                'rooms': rooms,
+                'bedrooms': bedrooms,
+                'city': city,
+                'link': link,
+                'picture': picture
+            })
+
+        if created:
+            logging.info("(" + site + ") new ad saved : " + title)
+            annonce.save()
+
+
 
     def next_proxy_index(self, proxy_index):
         self.proxies.pop(proxy_index)

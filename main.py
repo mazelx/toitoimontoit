@@ -11,6 +11,11 @@ from scrapping_modules.seloger import SeLogerSearch
 from scrapping_modules.leboncoin import LeBonCoinSearch
 from scrapping_modules.pap import PAPSearch
 
+#TODO add sources :
+# - explorimmo : https://git.phyks.me/Phyks/weboob/tree/master/modules
+# - foncia : https://git.phyks.me/Phyks/weboob/tree/master/modules
+# - myfoncia : https://git.phyks.me/Phyks/weboob/tree/master/modules
+# - bienici : ??
 
 def main():
     logging.basicConfig(

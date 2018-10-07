@@ -64,25 +64,21 @@ class LeBonCoinSearch(Search):
                 if param['id'] == 'square':
                     surface = param['value'].replace(" m²", "")
 
-            annonce, created = Annonce.get_or_create(
-                id='lbc-' + _data.get('list_id'),
-                defaults={
-                    'site': "Leboncoin Pro" if ad['company_ad'] == '1' else "Leboncoin Particulier",
-                    'created': datetime.strptime(_data.get('formatted_date'), "%d/%m/%Y &agrave; %Hh%M"),
-                    'title': BeautifulSoup(_data.get('subject'), "lxml").text,
-                    'description': BeautifulSoup(_data.get('body').replace("<br />", "\n"), "lxml").text,
-                    'telephone': _data.get("phone"),
-                    'price': _data.get('price').replace(" ", ""),
-                    'surface': surface,
-                    'rooms': rooms,
-                    'city': _data.get('zipcode'),
-                    'link': "https://www.leboncoin.fr/locations/%s.htm?ca=12_s" % _data.get('list_id'),
-                    'picture': _data.get('images')
-                }
+            self.save(
+                uid='lbc-' + _data.get('list_id'),
+                site="Leboncoin Pro" if ad['company_ad'] == '1' else "Leboncoin Particulier",
+                created=datetime.strptime(_data.get('formatted_date'), "%d/%m/%Y &agrave; %Hh%M"),
+                title=BeautifulSoup(_data.get('subject'), "lxml").text,
+                description=BeautifulSoup(_data.get('body').replace("<br />", "\n"), "lxml").text,
+                telephone=_data.get("phone"),
+                price=_data.get('price').replace(" ", ""),
+                surface=surface,
+                rooms=rooms,
+                city=_data.get('zipcode'),
+                link="https://www.leboncoin.fr/locations/%s.htm?ca=12_s" % _data.get('list_id'),
+                picture=_data.get('images')
             )
 
-            if created:
-                annonce.save()
 
     def surface_value(self, surface):
         if surface == 0:

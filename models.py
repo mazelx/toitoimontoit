@@ -14,7 +14,6 @@ class Annonce(Model):
     description = TextField(null=True)
     telephone = TextField(null=True)
     price = FloatField()
-    charges = FloatField(null=True)
     surface = FloatField()
     rooms = IntegerField(null=True)
     bedrooms = IntegerField(null=True)

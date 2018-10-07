@@ -47,25 +47,21 @@ class LogicImmoSearch(Search):
         data = request.json()
 
         for ad in data['items']:
-            annonce, created = Annonce.get_or_create(
-                id='logic-immo-' + ad['identifiers']['main'],
-                defaults={
-                    'site': "Logic Immo",
-                    'created': datetime.fromtimestamp(ad['info'].get('firstOnlineDate')),
-                    'title': "%s %s pièces" % (ad['info']['propertyType'].get('name'), ad['properties'].get('rooms')),
-                    'description': ad['info'].get('text'),
-                    'telephone': ad['contact'].get('phone'),
-                    'price': ad['pricing']['amount'],
-                    'surface': ad['properties'].get('area'),
-                    'rooms': ad['properties'].get('rooms'),
-                    'bedrooms': ad['properties'].get('bedrooms'),
-                    'city': ad['location']['city']['name'],
-                    'link': ad['info']['link'],
-                    'picture': [self.get_picture(picture) for picture in ad.get('pictures')]
-                }
+            self.save(
+                uid='logic-immo-' + ad['identifiers']['main'],
+                site="Logic Immo",
+                created=datetime.fromtimestamp(ad['info'].get('firstOnlineDate')),
+                title="%s %s pièces" % (ad['info']['propertyType'].get('name'), ad['properties'].get('rooms')),
+                description=ad['info'].get('text'),
+                telephone=ad['contact'].get('phone'),
+                price=ad['pricing']['amount'],
+                surface=ad['properties'].get('area'),
+                rooms=ad['properties'].get('rooms'),
+                bedrooms=ad['properties'].get('bedrooms'),
+                city=ad['location']['city']['name'],
+                link=ad['info']['link'],
+                picture=[self.get_picture(picture) for picture in ad.get('pictures')]
             )
-            if created:
-                annonce.save()
 
     def search_city_code(self, cities):
         keys = list()
