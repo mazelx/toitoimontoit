@@ -1,6 +1,5 @@
 from scrapping_modules.search import Search
 import xml.etree.ElementTree as ET
-from models import Annonce
 from datetime import datetime
 '''Module qui récupère les annonces de SeLoger.com'''
 
@@ -15,8 +14,8 @@ class SeLogerSearch(Search):
         payload = {}
 
         if self.parameters.get('price'):
-            payload['px_loyermin'] = self.parameters['price'][0]  # Loyer min
-            payload['px_loyermax'] = self.parameters['price'][1]  # Loyer max
+            payload['pxmin'] = self.parameters['price'][0]  # Loyer min
+            payload['pxmax'] = self.parameters['price'][1]  # Loyer max
 
         if self.parameters.get('surface'):
             payload['surfacemin'] = self.parameters['surface'][0]  # Surface min
@@ -35,7 +34,7 @@ class SeLogerSearch(Search):
         payload.update(self.parameters['seloger'])
 
         request = self.request(method="GET",
-                               url="http://ws.seloger.com/search_4.0.xml",
+                               url="http://ws.seloger.com/search.xml",
                                params=payload)
 
         xml_root = ET.fromstring(request.text)
@@ -44,33 +43,30 @@ class SeLogerSearch(Search):
             # Seconde requête pour obtenir la description de l'annonce
             _payload = {'noAudiotel': 1, 'idAnnonce': annonceNode.findtext('idAnnonce')}
             _request = self.request(method="GET",
-                                    url="http://ws.seloger.com/annonceDetail_4.0.xml",
+                                    url="http://ws.seloger.com/annonceDetail.xml",
                                     params=_payload)
 
             photos = list()
             for photo in annonceNode.find("photos"):
                 photos.append(photo.findtext("stdUrl"))
 
-            annonce, created = Annonce.get_or_create(
-                id='seloger-' + annonceNode.find('idAnnonce').text,
-                defaults={
-                    'site': 'SeLoger',
-                    # SeLoger peut ne pas fournir de titre pour une annonce T_T
-                    'title': "Appartement " + annonceNode.findtext('nbPiece') + " pièces" if annonceNode.findtext(
-                        'titre') is None else annonceNode.findtext('titre'),
-                    'description': ET.fromstring(_request.text).findtext("descriptif"),
-                    'telephone': ET.fromstring(_request.text).findtext("contact/telephone"),
-                    'created': datetime.strptime(annonceNode.findtext('dtCreation'), '%Y-%m-%dT%H:%M:%S'),
-                    'price': annonceNode.find('prix').text,
-                    'charges': annonceNode.find('charges').text,
-                    'surface': annonceNode.find('surface').text,
-                    'rooms': annonceNode.find('nbPiece').text,
-                    'bedrooms': annonceNode.find('nbChambre').text,
-                    'city': annonceNode.findtext('ville'),
-                    'link': annonceNode.findtext('permaLien'),
-                    'picture': photos
-                }
-            )
+            # SeLoger peut ne pas fournir de titre pour une annonce T_T
+            title = "Appartement " + annonceNode.findtext('nbPiece') + " pièces" \
+                if annonceNode.findtext('titre') is None \
+                else annonceNode.findtext('titre')
 
-            if created:
-                annonce.save()
+            self.save(
+                uid='seloger-' + annonceNode.find('idAnnonce').text,
+                site='SeLoger',
+                title=title,
+                description=ET.fromstring(_request.text).findtext("descriptif"),
+                telephone=ET.fromstring(_request.text).findtext("contact/telephone"),
+                created=datetime.strptime(annonceNode.findtext('dtCreation'), '%Y-%m-%dT%H:%M:%S'),
+                price=annonceNode.find('prix').text if annonceNode.find('prix') is not None else None,
+                surface=annonceNode.find('surface').text if annonceNode.find('surface') is not None else None,
+                rooms=annonceNode.find('nbPiece').text if annonceNode.find('nbPiece') is not None else None,
+                bedrooms=annonceNode.find('nbChambre').text if annonceNode.find('nbChambre') is not None else None,
+                city=annonceNode.findtext('ville'),
+                link=annonceNode.findtext('permaLien'),
+                picture=photos
+            )
