@@ -11,11 +11,15 @@ from scrapping_modules.seloger import SeLogerSearch
 from scrapping_modules.leboncoin import LeBonCoinSearch
 from scrapping_modules.pap import PAPSearch
 
+
 #TODO add sources :
 # - explorimmo : https://git.phyks.me/Phyks/weboob/tree/master/modules
 # - foncia : https://git.phyks.me/Phyks/weboob/tree/master/modules
 # - myfoncia : https://git.phyks.me/Phyks/weboob/tree/master/modules
 # - bienici : ??
+
+# TODO add photo matching for duplicate detection
+
 
 def main():
     logging.basicConfig(
@@ -36,7 +40,7 @@ def main():
 
     # Recherche et insertion en base
     if "logic_immo" in parameters['ad-providers']:
-        try :
+        try:
             logging.info("Retrieving from logic_immo")
             LogicImmoSearch(parameters, proxies).search()
         except ConnectionError:

@@ -69,8 +69,6 @@ class Search:
             logging.info("(" + site + ") new ad saved : " + title)
             annonce.save()
 
-
-
     def next_proxy_index(self, proxy_index):
         self.proxies.pop(proxy_index)
         if len(self.proxies) == 0:
