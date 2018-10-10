@@ -39,20 +39,6 @@ def main():
         proxies = get_proxies()
 
     # Recherche et insertion en base
-    if "logic_immo" in parameters['ad-providers']:
-        try:
-            logging.info("Retrieving from logic_immo")
-            LogicImmoSearch(parameters, proxies).search()
-        except ConnectionError:
-            logging.error("Error while retrieving from logic_immo")
-
-    if "seloger" in parameters['ad-providers']:
-        try:
-            logging.info("Retrieving from seloger")
-            SeLogerSearch(parameters, proxies).search()
-        except ConnectionError:
-            logging.error("Error while retrieving from seloger")
-
     if "leboncoin" in parameters['ad-providers']:
         try:
             logging.info("Retrieving from leboncoin")
@@ -66,6 +52,20 @@ def main():
             PAPSearch(parameters, proxies).search()
         except ConnectionError:
             logging.error("Error while retrieving from pap")
+
+    if "logic_immo" in parameters['ad-providers']:
+        try:
+            logging.info("Retrieving from logic_immo")
+            LogicImmoSearch(parameters, proxies).search()
+        except ConnectionError:
+            logging.error("Error while retrieving from logic_immo")
+
+    if "seloger" in parameters['ad-providers']:
+        try:
+            logging.info("Retrieving from seloger")
+            SeLogerSearch(parameters, proxies).search()
+        except ConnectionError:
+            logging.error("Error while retrieving from seloger")
 
     # Envoi des annonces sur Trello
     posted = trello_module.post()
