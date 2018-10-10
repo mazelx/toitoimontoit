@@ -3,7 +3,7 @@ import sys
 import json
 import requests
 import models
-import trello_module
+from trello_module import TrelloModule
 import logging
 from bs4 import BeautifulSoup
 from scrapping_modules.logic_immo import LogicImmoSearch
@@ -69,7 +69,7 @@ def main():
 
     logging.info("Posting ads to trello ")
     # Envoi des annonces sur Trello
-    posted = trello_module.post()
+    posted = TrelloModule().post()
     logging.info("%s new ads posted to Trello" % posted)
 
 

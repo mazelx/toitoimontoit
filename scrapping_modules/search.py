@@ -6,7 +6,7 @@ from PIL import Image
 from imagehash import phash, hex_to_hash
 from peewee import DoesNotExist
 from models import Annonce
-from trello_module import add_new_link
+from trello_module import TrelloModule
 
 class Search:
     HASH_SIMILAR_TRESHOLD = 8
@@ -71,7 +71,7 @@ class Search:
                 )
                 is_duplicate = True
                 if similar_ad.posted2trello:
-                    add_new_link(similar_ad, link)
+                    TrelloModule().add_new_link(similar_ad, link)
                     break
                 else:
                     # the similar ad is not yet on trello, will process and save this similar ad the next launch
