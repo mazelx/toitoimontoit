@@ -1,3 +1,5 @@
+import datetime
+
 from peewee import *
 from playhouse.sqlite_ext import SqliteExtDatabase
 
@@ -23,6 +25,7 @@ class Annonce(Model):
     picturehash = CharField(null=True)
     posted2trello = BooleanField(default=False)
     isduplicate = BooleanField(default=False)
+    idtrello = CharField(null=True)
 
     class Meta:
         database = db

@@ -67,6 +67,7 @@ def main():
         except ConnectionError:
             logging.error("Error while retrieving from seloger")
 
+    logging.info("Posting ads to trello ")
     # Envoi des annonces sur Trello
     posted = trello_module.post()
     logging.info("%s new ads posted to Trello" % posted)

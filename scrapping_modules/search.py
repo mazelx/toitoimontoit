@@ -6,10 +6,10 @@ from PIL import Image
 from imagehash import phash, hex_to_hash
 from peewee import DoesNotExist
 from models import Annonce
-
+from trello_module import add_new_link
 
 class Search:
-    HASH_SIMILAR_TRESHOLD = 5
+    HASH_SIMILAR_TRESHOLD = 8
 
     def __init__(self, parameters, proxies=[]):
         self.proxies = proxies
@@ -18,6 +18,7 @@ class Search:
 
     def request(self, method, url, params=None, data=None):
         proxy_index = 0
+
         # change proxy in case of connection error
         while True:
             proxy_dict = None
@@ -51,6 +52,7 @@ class Search:
     def save(self, uid, site, created, title, city, link, price, surface,
              description=None, telephone=None, rooms=None, bedrooms=None, picture=None):
         is_duplicate = False
+        similar_ad = None
 
         # ad already exists ?
         try:
@@ -61,14 +63,19 @@ class Search:
 
         # ad exists as similar ad ?
         for pic in picture:
-            similar = self.__find_similar_ad_from_pic(pic)
-            if similar:
+            similar_ad = self.__find_similar_ad_from_pic(pic)
+            if similar_ad:
                 logging.info(
                     "(" + site + ") ad for " + title + " already exists : " +
-                    link + " = " + similar.link
+                    link + " = " + similar_ad.link
                 )
                 is_duplicate = True
-                break
+                if similar_ad.posted2trello:
+                    add_new_link(similar_ad, link)
+                    break
+                else:
+                    # the similar ad is not yet on trello, will process and save this similar ad the next launch
+                    return False
 
         annonce = Annonce.create(
             id=uid,
@@ -86,11 +93,13 @@ class Search:
             picture=picture,
             picturehash=phash(Image.open(urlopen(picture[0]))) if len(picture) > 0 else None,
             posted2trello=is_duplicate,
-            isduplicate=is_duplicate
+            isduplicate=is_duplicate,
+            trelloid=similar_ad.idtrello if similar_ad else None
         )
 
         logging.info("(" + site + ") new ad saved : " + title + ("(duplicate)" if is_duplicate else ""))
         annonce.save()
+        return True
 
     def __next_proxy_index(self, proxy_index):
         self.proxies.pop(proxy_index)

@@ -3,23 +3,26 @@ from trello import TrelloClient
 from models import Annonce
 from ast import literal_eval
 
+with open("trello.json") as parameters_data:
+    config = json.load(parameters_data)
 
-def get_board():
-    '''
-    Retourne la liste Trello indiquée dans trello.ini
-    '''
-
-    # Chargement des paramètres et identifiants Trello depuis le fichier JSON
-    with open("trello.json") as parameters_data:
-        config = json.load(parameters_data)
-
+def get_auth():
     trello = TrelloClient(
         api_key=config['ApiKey'],
         api_secret=config['ApiSecret'],
         token=config['Token'],
         token_secret=config['TokenSecret']
     )
+    return trello
 
+
+def get_board():
+    '''
+    Retourne la liste Trello indiquée dans trello.ini
+    '''
+
+    trello = get_auth()
+    # Chargement des paramètres et identifiants Trello depuis le fichier JSON
     for b in trello.list_boards():
         if b.name == config['BoardName']:
             return b
@@ -68,7 +71,15 @@ def post():
         card.attach(url=annonce.link)
 
         annonce.posted2trello = True
+        annonce.idtrello = card.id
         annonce.save()
         posted += 1
     return posted
+
+
+def add_new_link(annonce, link):
+    trello = get_auth()
+    card = trello.get_card(annonce.idtrello)
+    card.attach(url=link)
+
 
