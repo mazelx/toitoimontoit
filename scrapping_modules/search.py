@@ -1,14 +1,16 @@
 import random
 import logging
+from urllib.request import urlopen
 import requests
+from PIL import Image
+from imagehash import phash, hex_to_hash
+from peewee import DoesNotExist
 from models import Annonce
-
-# TODO: divide search and save and display log between them
-from requests import ConnectTimeout
-from urllib3.exceptions import HTTPError, TimeoutError, ProxyError
 
 
 class Search:
+    HASH_SIMILAR_TRESHOLD = 5
+
     def __init__(self, parameters, proxies=[]):
         self.proxies = proxies
         self.parameters = parameters
@@ -41,36 +43,66 @@ class Search:
                 if self.proxies:
                     logging.info("Error connecting to API with proxy : " + self.proxies[proxy_index])
                     logging.debug("Error : " + e.__str__())
-                    proxy_index = self.next_proxy_index(proxy_index)
+                    proxy_index = self.__next_proxy_index(proxy_index)
                 else:
                     break
         raise ConnectionError("Cannot connect to API")
 
     def save(self, uid, site, created, title, city, link, price, surface,
              description=None, telephone=None, rooms=None, bedrooms=None, picture=None):
-        annonce, created = Annonce.get_or_create(
+        is_duplicate = False
+
+        # ad already exists ?
+        try:
+            Annonce.get_by_id(uid)
+            return False
+        except DoesNotExist:
+            pass
+
+        # ad exists as similar ad ?
+        for pic in picture:
+            similar = self.__find_similar_ad_from_pic(pic)
+            if similar:
+                logging.info(
+                    "(" + site + ") ad for " + title + " already exists : " +
+                    link + " = " + similar.link
+                )
+                is_duplicate = True
+                break
+
+        annonce = Annonce.create(
             id=uid,
-            defaults={
-                'site': site,
-                'created': created,
-                'title': title,
-                'description': description,
-                'telephone': telephone,
-                'price': price,
-                'surface': surface,
-                'rooms': rooms,
-                'bedrooms': bedrooms,
-                'city': city,
-                'link': link,
-                'picture': picture
-            })
+            site=site,
+            created=created,
+            title=title,
+            description=description,
+            telephone=telephone,
+            price=price,
+            surface=surface,
+            rooms=rooms,
+            bedrooms=bedrooms,
+            city=city,
+            link=link,
+            picture=picture,
+            picturehash=phash(Image.open(urlopen(picture[0]))) if len(picture) > 0 else None,
+            posted2trello=is_duplicate,
+            isduplicate=is_duplicate
+        )
 
-        if created:
-            logging.info("(" + site + ") new ad saved : " + title)
-            annonce.save()
+        logging.info("(" + site + ") new ad saved : " + title + ("(duplicate)" if is_duplicate else ""))
+        annonce.save()
 
-    def next_proxy_index(self, proxy_index):
+    def __next_proxy_index(self, proxy_index):
         self.proxies.pop(proxy_index)
         if len(self.proxies) == 0:
             return -1
         return random.randint(0, len(self.proxies) - 1)
+
+    def __find_similar_ad_from_pic(self, picture):
+        new_hash = phash(Image.open(urlopen(picture)))
+        hashes = [ad.picturehash for ad in Annonce.select()]
+        for old_hash in hashes:
+            if (hex_to_hash(old_hash) - new_hash) < self.HASH_SIMILAR_TRESHOLD:
+                return Annonce.get(Annonce.picturehash == old_hash)
+
+

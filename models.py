@@ -20,7 +20,9 @@ class Annonce(Model):
     city = CharField()
     link = CharField()
     picture = CharField(null=True)
+    picturehash = CharField(null=True)
     posted2trello = BooleanField(default=False)
+    isduplicate = BooleanField(default=False)
 
     class Meta:
         database = db
