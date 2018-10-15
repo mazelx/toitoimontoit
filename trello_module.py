@@ -45,7 +45,7 @@ class TrelloModule:
         '''
         posted = 0
 
-        for annonce in Annonce.select().where(not Annonce.posted2trello).order_by(Annonce.site.asc()):
+        for annonce in Annonce.select().where(Annonce.posted2trello == False).order_by(Annonce.site.asc()):
             title = "%s de %sm² à %s @ %s€" % (annonce.title, annonce.surface, annonce.city, annonce.price)
             description = "Créé le : %s\n\n" \
                           "%s pièces, %s chambre(s)\n" \
