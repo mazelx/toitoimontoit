@@ -1,7 +1,8 @@
 import json
-from trello import TrelloClient
+from trello import TrelloClient, ResourceUnavailable
 from models import Annonce
 from ast import literal_eval
+import logging
 
 
 class TrelloModule:
@@ -75,5 +76,9 @@ class TrelloModule:
         return posted
 
     def add_new_link(self, annonce, link):
-        card = self.trello.get_card(annonce.idtrello)
-        card.attach(url=link)
+        try:
+            card = self.trello.get_card(annonce.idtrello)
+            card.attach(url=link)
+        except ResourceUnavailable:
+            logging.error("Trello card not found : " + annonce.idtrello)
+
