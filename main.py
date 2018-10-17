@@ -67,10 +67,10 @@ def main():
         except ConnectionError:
             logging.error("Error while retrieving from seloger")
 
-    #logging.info("Posting ads to trello ")
+    logging.info("Posting ads to trello ")
     # Envoi des annonces sur Trello
-    #posted = TrelloModule().post()
-    #logging.info("%s new ads posted to Trello" % posted)
+    posted = TrelloModule().post()
+    logging.info("%s new ads posted to Trello" % posted)
 
 
 def get_proxies():
