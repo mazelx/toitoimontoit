@@ -77,8 +77,10 @@ class TrelloModule:
 
     def add_new_link(self, annonce, link):
         try:
+            if not annonce.idtrello:
+                raise ReferenceError
             card = self.trello.get_card(annonce.idtrello)
             card.attach(url=link)
-        except ResourceUnavailable:
-            logging.error("Trello card not found : " + annonce.idtrello)
+        except (ResourceUnavailable, ReferenceError):
+            logging.error("Trello card not found ( " + annonce.title + " : " + annonce.link + ")")
 

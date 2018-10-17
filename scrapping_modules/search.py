@@ -8,6 +8,7 @@ from peewee import DoesNotExist
 from models import Annonce
 from trello_module import TrelloModule
 
+
 class Search:
     HASH_SIMILAR_TRESHOLD = 8
 
