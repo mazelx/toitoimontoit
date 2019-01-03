@@ -40,9 +40,9 @@ dans le dossier `sample-requests` pour votre analyse (et pour tirer partie des p
     - req.norm.log : En-têtes de la requête d'une recherche dans un cas d'utilisation normale
 ```
 
-## Paramétrer \#UnToitPourCaramel pour ses besoins
+## Paramétrer \#toitoimontoit pour ses besoins
 ### Authentification Trello
-Avant de commencer à utiliser \#UnToitPourCaramel, il vous faut créer le fichier `trello.json` qui contiendra vos
+Avant de commencer à utiliser \#toitoimontoit, il vous faut créer le fichier `trello.json` qui contiendra vos
 jetons pour Trello ainsi que le nom de votre tableau et de votre liste :
 ```json
 {
