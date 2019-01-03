@@ -171,7 +171,7 @@ _Testé sur un Raspberry Pi sous Raspbian Jessie._
     ```
 3. Clonner le projet
     ```
-    git clone https://github.com/axeleroy/untoitpourcaramel.git
+    git clone https://github.com/mazelx/toitoimontoit.git
     ```
 4. Créer les fichiers `parameters.json` et `trello.json` comme indiqué plus haut
 5. Créer une tâche `cron` pour lancer ce script régulièrement (dans mon cas toutes les 2h)
@@ -179,5 +179,5 @@ _Testé sur un Raspberry Pi sous Raspbian Jessie._
     crontab -e
     ```
     ```
-    0 */2 * * * python3 /home/pi/untoitpourcaramel/main.py
+    0 */2 * * * python3 /home/pi/toitoimontoit/main.py
     ```
