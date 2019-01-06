@@ -114,7 +114,7 @@ class Search:
         new_hash = phash(Image.open(urlopen(picture)))
         hashes = [ad.picturehash for ad in Annonce.select()]
         for old_hash in hashes:
-            if (old_hash is not None and hex_to_hash(old_hash) - new_hash) < self.HASH_SIMILAR_TRESHOLD:
+            if old_hash is not None and hex_to_hash(old_hash) - new_hash < self.HASH_SIMILAR_TRESHOLD:
                 return Annonce.get(Annonce.picturehash == old_hash)
             else:
                 return False
