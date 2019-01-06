@@ -64,20 +64,21 @@ class Search:
             pass
 
         # ad exists as similar ad ?
-        for pic in picture:
-            similar_ad = self.__find_similar_ad_from_pic(pic)
-            if similar_ad:
-                logging.info(
-                    "(" + site + ") ad for " + title + " already exists : " +
-                    link + " = " + similar_ad.link
-                )
-                is_duplicate = True
-                if similar_ad.posted2trello:
-                    TrelloModule().add_new_link(similar_ad, link)
-                    break
-                else:
-                    # the similar ad is not yet on trello, will process and save this similar ad the next launch
-                    return False
+        if picture is not None:
+            for pic in picture:
+                similar_ad = self.__find_similar_ad_from_pic(pic)
+                if similar_ad:
+                    logging.info(
+                        "(" + site + ") ad for " + title + " already exists : " +
+                        link + " = " + similar_ad.link
+                    )
+                    is_duplicate = True
+                    if similar_ad.posted2trello:
+                        TrelloModule().add_new_link(similar_ad, link)
+                        break
+                    else:
+                        # the similar ad is not yet on trello, will process and save this similar ad the next launch
+                        return False
 
         annonce = Annonce.create(
             id=uid,
@@ -115,5 +116,7 @@ class Search:
         for old_hash in hashes:
             if (old_hash is not None and hex_to_hash(old_hash) - new_hash) < self.HASH_SIMILAR_TRESHOLD:
                 return Annonce.get(Annonce.picturehash == old_hash)
+            else:
+                return False
 
 
