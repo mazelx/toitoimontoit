@@ -92,7 +92,7 @@ class Search:
             city=city,
             link=link,
             picture=picture,
-            picturehash=phash(Image.open(urlopen(picture[0]))) if len(picture) > 0 else None,
+            picturehash=phash(Image.open(urlopen(picture[0]))) if (picture is not None and len(picture) > 0) else None,
             posted2trello=is_duplicate,
             isduplicate=is_duplicate,
             trelloid=similar_ad.idtrello if similar_ad else None
@@ -112,7 +112,7 @@ class Search:
         new_hash = phash(Image.open(urlopen(picture)))
         hashes = [ad.picturehash for ad in Annonce.select()]
         for old_hash in hashes:
-            if (hex_to_hash(old_hash) - new_hash) < self.HASH_SIMILAR_TRESHOLD:
+            if (old_hash is not None and hex_to_hash(old_hash) - new_hash) < self.HASH_SIMILAR_TRESHOLD:
                 return Annonce.get(Annonce.picturehash == old_hash)
 
 
