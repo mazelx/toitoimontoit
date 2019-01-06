@@ -17,7 +17,7 @@ class Search:
         self.parameters = parameters
         self.header = ""
 
-    def request(self, method, url, params=None, data=None):
+    def request(self, method, url, params=None, data=None, raiseException=True):
         proxy_index = 0
 
         # change proxy in case of connection error
@@ -48,7 +48,8 @@ class Search:
                     proxy_index = self.__next_proxy_index(proxy_index)
                 else:
                     break
-        raise ConnectionError("Cannot connect to API")
+        if raiseException:
+            raise ConnectionError("Cannot connect to API")
 
     def save(self, uid, site, created, title, city, link, price, surface,
              description=None, telephone=None, rooms=None, bedrooms=None, picture=None):
