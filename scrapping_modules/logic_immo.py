@@ -82,6 +82,7 @@ class LogicImmoSearch(Search):
 
     def get_picture(self, url):
         r = self.request(method="GET",
-                         url=url.replace("[WIDTH]", "1440").replace("[HEIGHT]", "956").replace("[SCALE]", "3.5"))
-        return r.url
+                         url=url.replace("[WIDTH]", "1440").replace("[HEIGHT]", "956").replace("[SCALE]", "3.5"),
+                         raiseException=False)
+        return r.url if r is not None else False
 

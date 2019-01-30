@@ -17,7 +17,7 @@ class Search:
         self.parameters = parameters
         self.header = ""
 
-    def request(self, method, url, params=None, data=None):
+    def request(self, method, url, params=None, data=None, raiseException=True):
         proxy_index = 0
 
         # change proxy in case of connection error
@@ -48,7 +48,8 @@ class Search:
                     proxy_index = self.__next_proxy_index(proxy_index)
                 else:
                     break
-        raise ConnectionError("Cannot connect to API")
+        if raiseException:
+            raise ConnectionError("Cannot connect to API")
 
     def save(self, uid, site, created, title, city, link, price, surface,
              description=None, telephone=None, rooms=None, bedrooms=None, picture=None):
@@ -63,20 +64,21 @@ class Search:
             pass
 
         # ad exists as similar ad ?
-        for pic in picture:
-            similar_ad = self.__find_similar_ad_from_pic(pic)
-            if similar_ad:
-                logging.info(
-                    "(" + site + ") ad for " + title + " already exists : " +
-                    link + " = " + similar_ad.link
-                )
-                is_duplicate = True
-                if similar_ad.posted2trello:
-                    TrelloModule().add_new_link(similar_ad, link)
-                    break
-                else:
-                    # the similar ad is not yet on trello, will process and save this similar ad the next launch
-                    return False
+        if picture is not None:
+            for pic in picture:
+                similar_ad = self.__find_similar_ad_from_pic(pic)
+                if similar_ad:
+                    logging.info(
+                        "(" + site + ") ad for " + title + " already exists : " +
+                        link + " = " + similar_ad.link
+                    )
+                    is_duplicate = True
+                    if similar_ad.posted2trello:
+                        TrelloModule().add_new_link(similar_ad, link)
+                        break
+                    else:
+                        # the similar ad is not yet on trello, will process and save this similar ad the next launch
+                        return False
 
         annonce = Annonce.create(
             id=uid,
@@ -92,7 +94,7 @@ class Search:
             city=city,
             link=link,
             picture=picture,
-            picturehash=phash(Image.open(urlopen(picture[0]))) if len(picture) > 0 else None,
+            picturehash=phash(Image.open(urlopen(picture[0]))) if (picture is not None and len(picture) > 0) else None,
             posted2trello=is_duplicate,
             isduplicate=is_duplicate,
             trelloid=similar_ad.idtrello if similar_ad else None
@@ -112,7 +114,9 @@ class Search:
         new_hash = phash(Image.open(urlopen(picture)))
         hashes = [ad.picturehash for ad in Annonce.select()]
         for old_hash in hashes:
-            if (hex_to_hash(old_hash) - new_hash) < self.HASH_SIMILAR_TRESHOLD:
+            if old_hash is not None and hex_to_hash(old_hash) - new_hash < self.HASH_SIMILAR_TRESHOLD:
                 return Annonce.get(Annonce.picturehash == old_hash)
+            else:
+                return False
 
 
